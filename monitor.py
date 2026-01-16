@@ -157,8 +157,8 @@ class ChargePointMQTTMonitor:
             # chargers is a list of device IDs (integers), not dictionaries
             device_id = chargers[0]
             
-            if not isinstance(device_id, int) or device_id <= 0:
-                logger.warning(f"Invalid device_id: {device_id}")
+            if not isinstance(device_id, int):
+                logger.warning(f"Invalid device_id type: {type(device_id).__name__}, expected int")
                 return 0, 0.0
             
             logger.debug(f"Monitoring device_id: {device_id}")
