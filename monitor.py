@@ -165,6 +165,7 @@ class ChargePointMQTTMonitor:
             
             # Get charger details/status
             charger = self.chargepoint.get_home_charger_status(charger_id=device_id)
+            print(charger)
             
             # Determine if connected (charging or plugged in)
             # Status could be: 'AVAILABLE', 'CHARGING', 'INUSE', etc. 
