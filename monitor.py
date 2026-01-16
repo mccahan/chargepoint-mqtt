@@ -169,7 +169,7 @@ class ChargePointMQTTMonitor:
             # Determine if connected (charging or plugged in)
             # Status could be: 'AVAILABLE', 'CHARGING', 'INUSE', etc. 
             charging_status = charger. charging_status.upper()
-            connected = 1 if charging_status in [STATUS_CHARGING, STATUS_INUSE] else 0
+            connected = 1 if charging_status in [STATUS_CHARGING] else 0
             
             # Get current power output in watts
             # Calculate power from amperage (at 240V)
