@@ -154,13 +154,10 @@ class ChargePointMQTTMonitor:
             
             # For now, monitor the first charger
             # In the future, this could be extended to monitor multiple chargers
-            charger = chargers[0]
+            # chargers is a list of device IDs (integers), not dictionaries
+            device_id = chargers[0]
             
-            # Get charging status
-            device_id = charger.get('device_id')
-            if not device_id:
-                logger.warning("No device_id found for charger")
-                return 0, 0.0
+            logger.debug(f"Monitoring device_id: {device_id}")
             
             # Get charger details/status
             status = self.chargepoint.get_charging_status(device_id)
