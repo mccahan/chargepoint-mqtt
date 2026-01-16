@@ -4,6 +4,8 @@ ChargePoint to MQTT Monitor
 Monitors ChargePoint EV chargers and publishes status to MQTT topics.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import time
@@ -19,6 +21,11 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# ChargePoint status constants
+STATUS_CHARGING = 'CHARGING'
+STATUS_INUSE = 'INUSE'
+STATUS_AVAILABLE = 'AVAILABLE'
 
 
 class ChargePointMQTTMonitor:
@@ -56,7 +63,16 @@ class ChargePointMQTTMonitor:
         
     def setup_mqtt(self):
         """Set up MQTT client connection."""
-        self.mqtt_client = mqtt.Client(client_id=self.mqtt_client_id)
+        # Use CallbackAPIVersion.VERSION1 for compatibility with paho-mqtt >= 2.0
+        try:
+            from paho.mqtt.client import CallbackAPIVersion
+            self.mqtt_client = mqtt.Client(
+                client_id=self.mqtt_client_id,
+                callback_api_version=CallbackAPIVersion.VERSION1
+            )
+        except (ImportError, AttributeError):
+            # Fallback for paho-mqtt < 2.0
+            self.mqtt_client = mqtt.Client(client_id=self.mqtt_client_id)
         
         if self.mqtt_username and self.mqtt_password:
             self.mqtt_client.username_pw_set(self.mqtt_username, self.mqtt_password)
@@ -151,8 +167,8 @@ class ChargePointMQTTMonitor:
             
             # Determine if connected (charging or plugged in)
             # Status could be: 'AVAILABLE', 'CHARGING', 'INUSE', etc.
-            charging_status = status.get('status', 'AVAILABLE').upper()
-            connected = 1 if charging_status in ['CHARGING', 'INUSE'] else 0
+            charging_status = status.get('status', STATUS_AVAILABLE).upper()
+            connected = 1 if charging_status in [STATUS_CHARGING, STATUS_INUSE] else 0
             
             # Get current power output in watts
             # The API might return power in kW, so convert to watts
