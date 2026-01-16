@@ -164,17 +164,16 @@ class ChargePointMQTTMonitor:
             logger.debug(f"Monitoring device_id: {device_id}")
             
             # Get charger details/status
-            status = self.chargepoint.get_charging_status(device_id)
+            charger = self.chargepoint.get_home_charger_status(charger_id=device_id)
             
             # Determine if connected (charging or plugged in)
-            # Status could be: 'AVAILABLE', 'CHARGING', 'INUSE', etc.
-            charging_status = status.get('status', STATUS_AVAILABLE).upper()
+            # Status could be: 'AVAILABLE', 'CHARGING', 'INUSE', etc. 
+            charging_status = charger. charging_status.upper()
             connected = 1 if charging_status in [STATUS_CHARGING, STATUS_INUSE] else 0
             
             # Get current power output in watts
-            # The API might return power in kW, so convert to watts
-            power_kw = status.get('power', 0.0) or 0.0
-            power_watts = float(power_kw) * 1000.0
+            # Calculate power from amperage (at 240V)
+            power_watts = charger.amperage_limit * 240 if charging_status == STATUS_CHARGING else 0.0
             
             logger.info(f"Charger status: connected={connected}, power={power_watts}W")
             
